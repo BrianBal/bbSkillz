@@ -7,7 +7,7 @@ opencode so the copies can never drift apart again.
 | Skill | What it does | Input |
 | --- | --- | --- |
 | `bbreview` | Multi-persona review of a PR (posts the review) or a local folder (suggests fixes only) | PR URL or folder |
-| `bbimprove` | Runs `bbreview` in folder mode, fixes every finding, repeats until clean. Never commits/pushes | folder |
+| `bbimprove` | Loop of `bbreview` -> `bbfix`: review a folder, root-cause and fix each finding, repeat until clean. Never commits/pushes | folder |
 | `bbinspect` | Same review bar, scoped to one module/page/feature instead of a diff | module, path, or `owner/repo target` |
 | `bbdoc` | Audits affected docs line-by-line against the code and fixes them, up to 5 passes | optional path/topic |
 | `bbprr` | Finds a PR with your review requested and runs `bbreview` on it | optional repo/author/number filter |
