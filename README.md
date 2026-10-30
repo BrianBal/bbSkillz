@@ -12,6 +12,7 @@ opencode so the copies can never drift apart again.
 | `bbdoc` | Audits affected docs line-by-line against the code and fixes them, up to 5 passes | optional path/topic |
 | `bbprr` | Finds a PR with your review requested and runs `bbreview` on it | optional repo/author/number filter |
 | `bbstart` | Researches a task and produces a visual, interactive plan (research, options, plan, open questions, optional POC) before any code is written | task or ticket |
+| `bbfix` | Fixes PR review comments or a list of issues: root-cause each, apply, then verify against the original complaint | PR URL/number or issue list |
 
 ## Install
 
@@ -38,7 +39,7 @@ that point into this repo).
 
 ## Invoking
 
-- **Claude Code**: `/bbreview`, `/bbimprove`, `/bbinspect`, `/bbdoc`, `/bbprr`, `/bbstart`
+- **Claude Code**: `/bbreview`, `/bbimprove`, `/bbinspect`, `/bbdoc`, `/bbprr`, `/bbstart`, `/bbfix`
 - **opencode**: `/bbreview`, etc. (commands), or just ask in prose — the skill
   descriptions auto-trigger
 - **Codex CLI**: `/skills` to pick, or `$bbreview ...` to invoke explicitly
