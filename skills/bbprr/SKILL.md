@@ -1,9 +1,9 @@
 ---
-name: ghprs
-description: Find an open GitHub PR where the user has a review request via `gh` CLI and run `bbreview` on it. Use when the user invokes `/ghprs`, says "ghprs", or asks to find a PR requesting their review and review it with bbreview.
+name: bbprr
+description: Find an open GitHub PR where the user has a review request via `gh` CLI and run `bbreview` on it. Use when the user invokes `/bbprr`, says "bbprr", or asks to find a PR requesting their review and review it with bbreview.
 ---
 
-# GH PRs (`ghprs`)
+# BB PRs (`bbprr`)
 
 Finds open GitHub pull requests where a review is requested from `@me` using the `gh` CLI, selects a PR, and runs the `bbreview` skill on it.
 
@@ -29,7 +29,7 @@ If no non-draft PRs are found, re-check without `--draft=false` and note if only
 - **Multiple matches and no filter**: show a concise numbered list of the open review-requested PRs (`N. <owner>/<repo>#<num> - <title> (@<author>, updated <date>) — <url>`) and either:
   - Immediately start `bbreview` on `#1` (the most recently updated PR) if the user asked to find **a** PR and review it, OR
   - If the user asked to choose from the list first, ask which number to review.
-  Default behavior when invoked as `/ghprs` with no extra instructions: list the queue briefly, pick `#1` (most recently updated non-draft PR), and proceed directly into `bbreview` for its URL.
+  Default behavior when invoked as `/bbprr` with no extra instructions: list the queue briefly, pick `#1` (most recently updated non-draft PR), and proceed directly into `bbreview` for its URL.
 
 ## Step 3: Trigger `bbreview`
 

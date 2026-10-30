@@ -10,7 +10,7 @@ opencode so the copies can never drift apart again.
 | `bbimprove` | Runs `bbreview` in folder mode, fixes every finding, repeats until clean. Never commits/pushes | folder |
 | `bbinspect` | Same review bar, scoped to one module/page/feature instead of a diff | module, path, or `owner/repo target` |
 | `bbdoc` | Audits affected docs line-by-line against the code and fixes them, up to 5 passes | optional path/topic |
-| `ghprs` | Finds a PR with your review requested and runs `bbreview` on it | optional repo/author/number filter |
+| `bbprr` | Finds a PR with your review requested and runs `bbreview` on it | optional repo/author/number filter |
 
 ## Install
 
@@ -37,7 +37,7 @@ that point into this repo).
 
 ## Invoking
 
-- **Claude Code**: `/bbreview`, `/bbimprove`, `/bbinspect`, `/bbdoc`, `/ghprs`
+- **Claude Code**: `/bbreview`, `/bbimprove`, `/bbinspect`, `/bbdoc`, `/bbprr`
 - **opencode**: `/bbreview`, etc. (commands), or just ask in prose — the skill
   descriptions auto-trigger
 - **Codex CLI**: `/skills` to pick, or `$bbreview ...` to invoke explicitly
