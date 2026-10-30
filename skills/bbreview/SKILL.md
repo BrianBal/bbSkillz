@@ -85,7 +85,35 @@ Mechanical results (build/test/lint/chunk-size failures) are merged into the lis
 
 ## Phase 3: Present
 
-Dedupe across agents, then re-apply the bar from Phase 2 and silently drop every minor finding (don't list them, don't mention how many were dropped). Keep bad patterns and doc mismatches. Then show a single numbered list. Each item: `N. [persona] path:line - draft comment` plus a short reason line. Put findings with no diff line (e.g. build failure) in a separate "general" group; those go in the review body. Also state build/tests/lint status in one line. Then **stop and wait**. Do not post anything yet.
+Dedupe across agents, then re-apply the bar from Phase 2 and silently drop every minor finding (don't list them, don't mention how many were dropped). Keep bad patterns and doc mismatches.
+
+Then show a single numbered list, in this shape:
+
+```
+1. [Code Quality] https://github.com/<owner>/<repo>/pull/<n>/changes#diff-<anchor>R<line>
+   "<preview: the short posted comment text>"
+
+   <long description: what is wrong, when it bites, the evidence, and the
+   smallest fix. 2-5 sentences. Written to the user, never posted.>
+
+---
+2. [Security] ...
+```
+
+Rules for the list:
+
+- `[persona]` is the finding's persona: `Code Quality`, `Security`, `Performance`, `Repo rules`, `Web Trace`, `Tests`, `Docs`, `Build`.
+- The link points at the exact changed line. `<anchor>` is the SHA-256 of the repo-relative path exactly as it appears in the PR's file list (no leading `./`):
+  ```bash
+  printf '%s' "path/to/file.ts" | sha256sum | cut -d' ' -f1   # macOS: shasum -a 256
+  ```
+  giving `.../pull/<n>/changes#diff-<anchor>R<line>` (right-side line number). Only link paths that are actually in the diff.
+- Put a `---` between items, with a blank line either side.
+- Findings with no diff line (build/lint failure, missing file, suite-wide problem) go in a separate **General** group below the list, with no link.
+- **Folder mode** has no PR: use `path:line` in place of the link.
+- Close with one line stating build / tests / lint status.
+
+Then **stop and wait**. Do not post anything yet.
 
 ## Phase 4: Post (after the user replies)
 
@@ -102,6 +130,15 @@ Post as ONE review via the API with inline comments, anchored to `commit_id` = t
 gh api repos/<owner>/<repo>/pulls/<n>/reviews --input review.json
 ```
 with `{"commit_id": "...", "event": "REQUEST_CHANGES|APPROVE", "body": "", "comments": [{"path": "...", "line": N, "side": "RIGHT", "body": "..."}]}`. General (non-line) findings go in `body`. If a line isn't in the diff the API rejects it; re-anchor to the nearest diff line. If the user is the PR author, GitHub blocks approve/request-changes: fall back to event `COMMENT` and say so.
+
+The response carries the review `id`. Fetch the comments it created and upgrade each accepted finding to its permanent link:
+
+```bash
+gh api repos/<owner>/<repo>/pulls/<n>/reviews/<review_id>/comments \
+  --jq '.[] | {path, line, id, body}'
+```
+
+Match on `path` + `line`, then print the accepted findings again in the Phase 3 shape, with `https://github.com/<owner>/<repo>/pull/<n>/changes#r<id>` in place of the diff anchor - the same link GitHub's "Copy link" gives. Rejected findings are not in the review and get no link.
 
 After posting, give the review URL and remove the PR worktree: `git -C <main clone> worktree remove --force <worktree path>`, then `git worktree prune`. If the clone was made into /tmp/bb-skillz just for this review, delete that too. Also delete any local branch `gh pr checkout` created for the PR. Folder mode has no worktree, so skip this. Stop there.
 
