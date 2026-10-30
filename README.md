@@ -6,11 +6,11 @@ opencode so the copies can never drift apart again.
 
 | Skill | What it does | Input |
 | --- | --- | --- |
-| `bb-review` | Multi-persona review of a PR (posts the review) or a local folder (suggests fixes only) | PR URL or folder |
-| `bb-improve` | Runs `bb-review` in folder mode, fixes every finding, repeats until clean. Never commits/pushes | folder |
-| `bb-inspect` | Same review bar, scoped to one module/page/feature instead of a diff | module, path, or `owner/repo target` |
-| `bb-doc` | Audits affected docs line-by-line against the code and fixes them, up to 5 passes | optional path/topic |
-| `ghprs` | Finds a PR with your review requested and runs `bb-review` on it | optional repo/author/number filter |
+| `bbreview` | Multi-persona review of a PR (posts the review) or a local folder (suggests fixes only) | PR URL or folder |
+| `bbimprove` | Runs `bbreview` in folder mode, fixes every finding, repeats until clean. Never commits/pushes | folder |
+| `bbinspect` | Same review bar, scoped to one module/page/feature instead of a diff | module, path, or `owner/repo target` |
+| `bbdoc` | Audits affected docs line-by-line against the code and fixes them, up to 5 passes | optional path/topic |
+| `ghprs` | Finds a PR with your review requested and runs `bbreview` on it | optional repo/author/number filter |
 
 ## Install
 
@@ -37,10 +37,10 @@ that point into this repo).
 
 ## Invoking
 
-- **Claude Code**: `/bb-review`, `/bb-improve`, `/bb-inspect`, `/bb-doc`, `/ghprs`
-- **opencode**: `/bb-review`, etc. (commands), or just ask in prose — the skill
+- **Claude Code**: `/bbreview`, `/bbimprove`, `/bbinspect`, `/bbdoc`, `/ghprs`
+- **opencode**: `/bbreview`, etc. (commands), or just ask in prose — the skill
   descriptions auto-trigger
-- **Codex CLI**: `/skills` to pick, or `$bb-review ...` to invoke explicitly
+- **Codex CLI**: `/skills` to pick, or `$bbreview ...` to invoke explicitly
 
 ## Layout
 
@@ -57,7 +57,7 @@ opencode a slash-command entrypoint; Codex uses `$name` instead.
 
 ## Portability notes
 
-- **Subagents.** `bb-review`, `bb-inspect`, `bb-doc` and `bb-improve` want to fan
+- **Subagents.** `bbreview`, `bbinspect`, `bbdoc` and `bbimprove` want to fan
   out to parallel reviewers. Every host with a subagent tool (Claude Code's Task
   tool, opencode's `task`, Codex subagents) uses it. On a host without one, the
   skill says to run the personas sequentially in the same order rather than skip

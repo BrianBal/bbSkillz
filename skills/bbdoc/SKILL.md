@@ -1,6 +1,6 @@
 ---
-name: bb-doc
-description: Self-healing documentation audit loop. Finds all documentation and specs touched or affected by the current branch/PR (or a given folder/topic), spawns parallel subagents via the Task tool (subagent_type "general") to audit each doc line-by-line against the actual codebase for untrue, misleading, or out-of-date information, updates the docs (and regenerates any derived OpenAPI/schema bundles), and repeats up to 5 passes until zero findings remain. Use when the user invokes `/bb-doc`, says "bb-doc", or asks to audit and fix affected docs until clean.
+name: bbdoc
+description: Self-healing documentation audit loop. Finds all documentation and specs touched or affected by the current branch/PR (or a given folder/topic), spawns parallel subagents via the Task tool (subagent_type "general") to audit each doc line-by-line against the actual codebase for untrue, misleading, or out-of-date information, updates the docs (and regenerates any derived OpenAPI/schema bundles), and repeats up to 5 passes until zero findings remain. Use when the user invokes `/bbdoc`, says "bbdoc", or asks to audit and fix affected docs until clean.
 ---
 
 # BB Doc
@@ -9,7 +9,7 @@ Audits and updates every documentation file and API spec touched or affected by 
 
 Input: optional path, module, or topic. Defaults to the current branch's changes against the base branch (`origin/HEAD`, else `origin/master` or `origin/main`) in the current working directory.
 
-Keep a ledger at `/tmp/bb-skillz/bb-doc-ledger.md`: per pass, each finding (`path:line - issue`), the action taken (`updated` / `deferred`), and the file(s) changed.
+Keep a ledger at `/tmp/bb-skillz/bbdoc-ledger.md`: per pass, each finding (`path:line - issue`), the action taken (`updated` / `deferred`), and the file(s) changed.
 
 ## Phase 1: Find Affected Docs
 
@@ -49,7 +49,7 @@ Repeat up to 5 passes:
      - Run relevant contract/schema tests to confirm everything passes.
 
 4. **Log Status & Continue**:
-   - Record the pass's findings and updates in `/tmp/bb-skillz/bb-doc-ledger.md`.
+   - Record the pass's findings and updates in `/tmp/bb-skillz/bbdoc-ledger.md`.
    - Output a one-line status (e.g. `Pass 1: 12 doc findings - 12 updated, 0 deferred. Running Pass 2...`).
    - Proceed to the next pass.
 

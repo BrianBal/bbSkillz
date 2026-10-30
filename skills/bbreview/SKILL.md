@@ -1,5 +1,5 @@
 ---
-name: bb-review
+name: bbreview
 description: Multi-persona code review of a GitHub PR URL or a local folder (self-review). Given a PR URL, checks out the PR, runs mechanical checks (build/tests/lint) in parallel with focused review subagents via the Task tool (subagent_type "general") covering code/security/perf, repo rules/web-trace/tests, and docs, presents a numbered findings list, then posts the user-approved findings as brief inline comments and submits request-changes or approve. For a folder, reviews the branch's changes locally and offers to fix accepted findings. Use when the user gives a GitHub PR link or a folder path to review.
 ---
 

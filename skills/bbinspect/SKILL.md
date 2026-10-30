@@ -1,17 +1,17 @@
 ---
-name: bb-inspect
-description: Multi-persona code inspection of a specific module, page, section, or group of code (either in the current/local repo or given a GitHub repo + target like `tracevision/web-trace team page`). Resolves the target files, runs scoped mechanical checks (tests/lint/build) in parallel with focused review subagents via the Task tool (subagent_type "general") covering code/security/perf, repo rules/web-trace/tests, and docs, presents a numbered findings list, and offers to fix accepted findings. Use when the user asks to "bb-inspect" or review/audit a module, page, feature, or folder of code rather than a branch diff or PR.
+name: bbinspect
+description: Multi-persona code inspection of a specific module, page, section, or group of code (either in the current/local repo or given a GitHub repo + target like `tracevision/web-trace team page`). Resolves the target files, runs scoped mechanical checks (tests/lint/build) in parallel with focused review subagents via the Task tool (subagent_type "general") covering code/security/perf, repo rules/web-trace/tests, and docs, presents a numbered findings list, and offers to fix accepted findings. Use when the user asks to "bbinspect" or review/audit a module, page, feature, or folder of code rather than a branch diff or PR.
 ---
 
 # BB Inspect
 
-Inspects an existing module, page, section, or group of code using the same substantive bar and personas as `bb-review`, scoped to that area of the codebase rather than a git diff.
+Inspects an existing module, page, section, or group of code using the same substantive bar and personas as `bbreview`, scoped to that area of the codebase rather than a git diff.
 
 Input examples:
-- `/bb-inspect database module` (from inside the project dir)
-- `/bb-inspect flex page` (from inside the project dir)
-- `/bb-inspect tracevision/web-trace team page` (from outside the project dir, given `<owner>/<repo>` or repo name + module/section/page)
-- `/bb-inspect src/modules/billing` (explicit path or glob)
+- `/bbinspect database module` (from inside the project dir)
+- `/bbinspect flex page` (from inside the project dir)
+- `/bbinspect tracevision/web-trace team page` (from outside the project dir, given `<owner>/<repo>` or repo name + module/section/page)
+- `/bbinspect src/modules/billing` (explicit path or glob)
 
 ## Phase 1: Gather & Scope (fast, read-only)
 
@@ -102,4 +102,4 @@ The user replies with numbers to accept (e.g. `1 3 5`), `all`, or `none` / `appr
 
 ## Comment voice (important)
 
-Draft comments use the same brief voice as `bb-review`: plain statement of the issue in as few words as it takes (often ~3-6 words, e.g. `"missing css prefix"`, `"needs useCallback here"`, `"auth check should happen before api call"`, `"tracked action missing from doc"`). No greetings, no praise, no "consider", no emoji. The 1-2 line explanation stays in the reason line below the item.
+Draft comments use the same brief voice as `bbreview`: plain statement of the issue in as few words as it takes (often ~3-6 words, e.g. `"missing css prefix"`, `"needs useCallback here"`, `"auth check should happen before api call"`, `"tracked action missing from doc"`). No greetings, no praise, no "consider", no emoji. The 1-2 line explanation stays in the reason line below the item.

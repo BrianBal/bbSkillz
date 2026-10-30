@@ -52,7 +52,7 @@ uninstall() {
               "$HOME"/.codex/skills/* "$HOME"/.config/opencode/skills/* \
               "$HOME"/.claude/commands/* "$HOME"/.config/opencode/command/*; do
     [ -L "$dest" ] || continue
-    case "$(readlink -f "$dest")" in
+    case "$(readlink "$dest")" in
       "$REPO"/*) rm -f "$dest"; printf '  removed %s\n' "$dest"; removed=$((removed + 1)) ;;
     esac
   done
@@ -76,7 +76,21 @@ for dir in "${STALE_SKILL_DIRS[@]}"; do
   done
 done
 
+# Drop links into this repo that no longer match a current skill (e.g. renamed).
+prune_repo_links() {
+  local dir="$1" dest raw
+  [ -d "$dir" ] || return 0
+  for dest in "$dir"/*; do
+    [ -L "$dest" ] || continue
+    raw="$(readlink "$dest")"
+    case "$raw" in
+      "$REPO"/*) rm -f "$dest"; printf '  pruned stale link %s\n' "$dest" ;;
+    esac
+  done
+}
+
 for dir in "${SKILL_TARGETS[@]}"; do
+  prune_repo_links "$dir"
   mkdir -p "$dir"
   for path in "$REPO"/skills/*/; do
     name="$(basename "$path")"
@@ -87,6 +101,7 @@ done
 for pair in "${COMMAND_TARGETS[@]}"; do
   target="${pair%%:*}"
   src="$REPO/commands/${pair##*:}"
+  prune_repo_links "$target"
   mkdir -p "$target"
   for file in "$src"/*.md; do
     link_path "$file" "$target/$(basename "$file")"
