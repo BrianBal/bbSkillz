@@ -19,6 +19,11 @@ STALE_SKILL_DIRS=(
   "$HOME/.config/opencode/skills"
 )
 
+# Names used by older revisions of this repo, removed so they cannot linger
+# next to the current (dashless) skills.
+LEGACY_SKILL_NAMES=(bb-review bb-improve bb-inspect bb-doc ghprs)
+LEGACY_COMMAND_NAMES=(bb-review.md bb-improve.md bb-inspect.md bb-doc.md ghprs.md)
+
 # <dir>:<subdir of ./commands>
 COMMAND_TARGETS=(
   "$HOME/.claude/commands:claude"
@@ -46,6 +51,14 @@ link_path() {
   printf '  linked %s -> %s\n' "$dest" "$src"
 }
 
+remove_real() {
+  local dest="$1"
+  [ -e "$dest" ] || return 0
+  [ -L "$dest" ] && return 0
+  backup_path "$dest"
+  rm -rf "$dest"
+}
+
 uninstall() {
   local removed=0 dest
   for dest in "$HOME"/.agents/skills/* "$HOME"/.claude/skills/* \
@@ -66,13 +79,19 @@ fi
 
 printf 'Installing from %s\n' "$REPO"
 
-for dir in "${STALE_SKILL_DIRS[@]}"; do
+# Replace real directories left by earlier manual installs (current and legacy names).
+for dir in "${SKILL_TARGETS[@]}" "${STALE_SKILL_DIRS[@]}"; do
   for path in "$REPO"/skills/*/; do
-    name="$(basename "$path")"
-    if [ -d "$dir/$name" ] && [ ! -L "$dir/$name" ]; then
-      backup_path "$dir/$name"
-      rm -rf "$dir/$name"
-    fi
+    remove_real "$dir/$(basename "$path")"
+  done
+  for name in "${LEGACY_SKILL_NAMES[@]}"; do
+    remove_real "$dir/$name"
+  done
+done
+
+for pair in "${COMMAND_TARGETS[@]}"; do
+  for name in "${LEGACY_COMMAND_NAMES[@]}"; do
+    remove_real "${pair%%:*}/$name"
   done
 done
 
