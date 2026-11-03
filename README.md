@@ -48,6 +48,7 @@ that point into this repo).
 
 ```
 skills/<name>/SKILL.md      # the Agent Skills standard: name + description frontmatter
+agents/*.md                 # Claude Code sub-agents (researcher, implementer), linked into ~/.claude/agents
 commands/claude/*.md        # thin $-argument wrappers
 commands/opencode/*.md
 install.sh

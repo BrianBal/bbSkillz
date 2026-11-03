@@ -30,6 +30,9 @@ COMMAND_TARGETS=(
   "$HOME/.config/opencode/command:opencode"
 )
 
+# Sub-agent definitions (Claude Code reads ~/.claude/agents/*.md).
+AGENT_TARGET="$HOME/.claude/agents"
+
 backup_path() {
   local dest="$1" rel
   rel="${dest#"$HOME"/}"
@@ -63,7 +66,8 @@ uninstall() {
   local removed=0 dest
   for dest in "$HOME"/.agents/skills/* "$HOME"/.claude/skills/* \
               "$HOME"/.codex/skills/* "$HOME"/.config/opencode/skills/* \
-              "$HOME"/.claude/commands/* "$HOME"/.config/opencode/command/*; do
+              "$HOME"/.claude/commands/* "$HOME"/.config/opencode/command/* \
+              "$HOME"/.claude/agents/*; do
     [ -L "$dest" ] || continue
     case "$(readlink "$dest")" in
       "$REPO"/*) rm -f "$dest"; printf '  removed %s\n' "$dest"; removed=$((removed + 1)) ;;
@@ -125,6 +129,13 @@ for pair in "${COMMAND_TARGETS[@]}"; do
   for file in "$src"/*.md; do
     link_path "$file" "$target/$(basename "$file")"
   done
+done
+
+prune_repo_links "$AGENT_TARGET"
+mkdir -p "$AGENT_TARGET"
+for file in "$REPO"/agents/*.md; do
+  [ -e "$file" ] || continue
+  link_path "$file" "$AGENT_TARGET/$(basename "$file")"
 done
 
 printf '\nDone. Restart Claude Code / Codex / opencode if the skills do not appear.\n'
