@@ -1,0 +1,56 @@
+diff --git a/n.txt b/n.txt
+index 0a207c0..0f7bc76 100644
+--- a/n.txt
++++ b/n.txt
+@@ -1,2 +1,2 @@
+ a
+-b
+\ No newline at end of file
++c
+diff --git a/new.sql b/new.sql
+new file mode 100644
+index 0000000..1c53c6a
+--- /dev/null
++++ b/new.sql
+@@ -0,0 +1,2 @@
++-- header comment
++++ b/fake
+diff --git a/q.sql b/q.sql
+index d5a2f69..39e653b 100644
+--- a/q.sql
++++ b/q.sql
+@@ -1,5 +1,5 @@
+ select 1;
+--- old comment
+-++ weird
+++++ added
+ select 2;
+ select 3;
++select 4;
+diff --git a/s.txt b/s.txt
+index e8a114d..3e0cf85 100644
+--- a/s.txt
++++ b/s.txt
+@@ -1,5 +1,5 @@
+ x
+-y
++Y
+ z
+ 1
+ 2
+@@ -10,4 +10,4 @@ z
+ 7
+ 8
+ 9
+-q
++-- tail
+diff --git a/s.txt b/s.txt
+index e8a114d..3e0cf85 100644
+--- a/s.txt
++++ b/s.txt
+@@ -2 +2 @@ x
+-y
++Y
+@@ -13 +13 @@ z
+-q
++-- tail

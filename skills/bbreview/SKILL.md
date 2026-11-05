@@ -22,8 +22,9 @@ Do NOT run build/tests/lint here — those run in parallel during Phase 2.
 2. Get the code locally without disturbing the user's working tree: use an existing local clone of the repo if one exists (look under cwd and siblings), else `gh repo clone` into `/tmp/bb-skillz`. Create a git worktree for the PR head (`gh pr checkout` inside the worktree, or `git fetch origin pull/<n>/head`). Never switch branches in the user's main checkout.
 3. Pre-annotate the diff with right-side file line numbers into `/tmp/bb-skillz/bb-diff-annotated.patch` so sub-agents never have to read whole files just to compute line numbers:
    ```bash
-   awk '/^(diff |index |--- |\+\+\+ )/{in_hunk=0; print; next} /^@@ /{in_hunk=1; split($3,a,","); ln=substr(a[1],2)-1; print; next} !in_hunk{next} /^\\/{next} /^-/{print "     " $0; next} {ln++; printf "%4d %s\n", ln, $0}' <raw-diff> > /tmp/bb-skillz/bb-diff-annotated.patch
+   awk '/^@@ /{split($2,o,","); split($3,n,","); ol=(2 in o)?o[2]:1; nl=(2 in n)?n[2]:1; ln=substr(n[1],2)-1; print; next} /^\\/{next} ol>0||nl>0{if(/^-/){ol--; print "     " $0; next} if(/^\+/)nl--; else {ol--; nl--} ln++; printf "%4d %s\n", ln, $0; next} /^(diff |index |--- |\+\+\+ )/{print}' <raw-diff> > /tmp/bb-skillz/bb-diff-annotated.patch
    ```
+   The hunk body is bounded by the line counts in its `@@ -a,b +c,d @@` header, not by spotting the next `--- `/`+++ ` line, so a removed `-- comment` (`--- comment`) or added `++x` (`+++x`) never ends the hunk early. If you change this command, run `tests/annotate-diff.test.sh` in this skill's directory.
 4. Read root `AGENTS.md` / `CLAUDE.md` (and any in touched directories) once so their contents can be passed inline to the sub-agents.
 
 ## Phase 2: Parallel checks & review passes

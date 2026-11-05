@@ -1,0 +1,54 @@
+diff --git a/n.txt b/n.txt
+index 0a207c0..0f7bc76 100644
+--- a/n.txt
++++ b/n.txt
+@@ -1,2 +1,2 @@
+   1  a
+     -b
+   2 +c
+diff --git a/new.sql b/new.sql
+index 0000000..1c53c6a
+--- /dev/null
++++ b/new.sql
+@@ -0,0 +1,2 @@
+   1 +-- header comment
+   2 +++ b/fake
+diff --git a/q.sql b/q.sql
+index d5a2f69..39e653b 100644
+--- a/q.sql
++++ b/q.sql
+@@ -1,5 +1,5 @@
+   1  select 1;
+     --- old comment
+     -++ weird
+   2 ++++ added
+   3  select 2;
+   4  select 3;
+   5 +select 4;
+diff --git a/s.txt b/s.txt
+index e8a114d..3e0cf85 100644
+--- a/s.txt
++++ b/s.txt
+@@ -1,5 +1,5 @@
+   1  x
+     -y
+   2 +Y
+   3  z
+   4  1
+   5  2
+@@ -10,4 +10,4 @@ z
+  10  7
+  11  8
+  12  9
+     -q
+  13 +-- tail
+diff --git a/s.txt b/s.txt
+index e8a114d..3e0cf85 100644
+--- a/s.txt
++++ b/s.txt
+@@ -2 +2 @@ x
+     -y
+   2 +Y
+@@ -13 +13 @@ z
+     -q
+  13 +-- tail
