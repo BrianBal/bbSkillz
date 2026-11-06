@@ -16,7 +16,7 @@ State lives in `~/hq/projects/tracebot.md`: section **Bot-army improvement loop*
 
 ## Hard limits
 
-- **STOP (2026-11-04): no Studio forks against prod** until `studio::create_fork` no longer holds prod's install-wide write lock for long. Today it copies row by row in one transaction, and forks from a laptop held the lock for 40–80 s, which made prod turns fail with the generic "technical problem" notice (25 failures, 7 seen by people in Slack). Remove this line only after that fix ships.
+- **STOP (updated 2026-11-05): no Studio replays against prod from a laptop yet.** PR #112 (merged 2026-11-05) fixed fork creation and tool decisions: they now hold the lock for round trips, not rows. But the Studio worker's own per-step turn writes still hold prod's install-wide write lock for up to ~3 s over a laptop link. Remove this line when the global-lock removal (fix/lockfree) ships, or when the worker runs inside AWS next to the database.
 
 - **Prod is read-only for every agent.** Use tb2db for reads. In Studio, any call that writes or sends gets `respond`ed, never called: Slack, wiki writes, jobs, HubSpot, `worker_*`, `qa_*`, GitHub.
 - **No prod wiki writes.** Wiki fixes land as a seed-file branch or as a proposed body for Brian.
