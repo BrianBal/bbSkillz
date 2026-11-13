@@ -1,6 +1,6 @@
 ---
 name: lets-do
-description: HQ's process for starting new work. Use when Brian says "let's do X", "let's try Y in X", "let's build/add/experiment with ...", or invokes /lets-do. It sets up a feature branch, a worktree, a tracking artifact and a project entry. It then defines the work as an experiment with Brian (goal, measure, judge, research, demos, work loop), runs sub-agents through TDD and real-run loops plus /bbimprove, and presents the results. Runs from ~/hq.
+description: HQ's process for starting new work. Use when Brian says "let's do X", "let's try Y in X", "let's build/add/experiment with ...", or invokes /lets-do. It sets up a feature branch, a worktree, a tracking artifact and a project entry in HQ app 147794. It then defines the work as an experiment with Brian (goal, measure, judge, research, demos, work loop), runs sub-agents through TDD and real-run loops plus /bbimprove, and presents the results. Runs from ~/hq.
 ---
 
 # Let's do X

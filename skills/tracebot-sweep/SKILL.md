@@ -84,7 +84,7 @@ The report ends with one fenced `json` block, `context-investigation/result/v1`.
 
 ### 6. Report
 
-Update the loop section (one line per pattern: status, branch or PR, next action). Add a **Sweep <date>** log entry. Update `projects.md` Next. Then give Brian a short chat summary covering:
+Update the loop section (one line per pattern: status, branch or PR, next action). Add a **Sweep <date>** log entry. Update the project's `next` in HQ app 147794 (`update_project`; see `~/hq/processes/hq-app.md`). Then give Brian a short chat summary covering:
 
 - conversations swept;
 - good and bad counts;
