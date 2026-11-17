@@ -14,22 +14,29 @@ is to make sure the PR's reviewers (TraceBot and the team) find nothing.
 - Run `/bbimprove` (pre-PR mode) on the worktree in the brief, or a single
   pre-PR `/bbreview` if the brief says "verify only". In verify-only mode you
   change nothing.
-- Green means one complete review of the final code with zero Must/Should
-  findings and passing checks. A cap hit is NOT GREEN. Say so plainly.
+- The loop is review → investigate → fix. No finding is fixed until an agent
+  that didn't write the code has investigated it
+  (`skills/bbfix/references/investigate.md`): proved or disproved it, found
+  the root cause, checked it against Brian's recorded direction and the core
+  principles, and assigned it fix now, list in PR body, drop or push back,
+  with a fix plan for fix now.
+- Green means one complete review of the final code where every finding is
+  investigated, nothing is left as fix now, and the checks pass. A cap hit is
+  NOT GREEN. Say so plainly.
 - Check the PR description draft against the code. Every number, file list,
   "unchanged" and "no migration" claim must be true.
 - If a finding would undo something the brief or project file records as
-  Brian's decision, don't fix it. Return it as `direction-conflict`, with the
-  decision cited.
+  Brian's decision, or a core principle, investigation marks it push back:
+  don't fix it, and cite the decision.
 - Commit fixes locally on the branch only if the brief says so. Never push,
   open or comment on PRs, or merge.
 
 ## What to return
 
 1. **Verdict:** `GREEN after N rounds` / `NOT GREEN at cap` / `verify: clean` / `verify: N findings`.
-2. **Per round:** counts by tier, and what was fixed.
-3. **Open items:** every unfixed finding (including Nits and deferred), each with a one-line reason.
-4. **Direction conflicts** for Brian, each with a drafted one-line reply.
+2. **Per round:** counts by tier and by bucket (fix now / listed / dropped / push back), and what was fixed.
+3. **Known follow-ups** for the PR body (the listed items), and **dropped** items, each with its reason.
+4. **Push back** for Brian, each with the decision cited and a drafted one-line reply.
 5. **Checks run:** exact commands and their results.
 
 Append a condensed, dated version to the project file's `## PR gate` / `## Log`

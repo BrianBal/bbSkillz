@@ -35,7 +35,11 @@ Launch one subagent per issue in parallel (multiple Task calls, `subagent_type: 
 
 Give each subagent: the issue verbatim and its source, the repo/worktree path, the inline `AGENTS.md` / `CLAUDE.md` rules, and this instruction:
 
-> Work out what is actually wrong before changing anything. Reproduce or prove the claim from the code: read the file, its callers, its tests, and any interlocking system. Distinguish the root cause from the symptom. Decide whether the comment is correct - reviewers are sometimes wrong, out of date, or asking for something the code intentionally does. Change nothing. Return `{issue_id, verdict (valid | invalid | partially_valid), root_cause, evidence (path:line), plan (files and the smallest change each), test_plan, risks, scope_conflicts}`.
+> Follow `references/investigate.md` (this skill's directory) for this issue. Work out what is actually wrong before changing anything: reproduce it or prove it from the code (file:line chain, plus a failing test where practical), find the root cause and every other instance, check it against the direction sources in the brief, and assign one disposition: `fix now` / `list in PR body` / `drop` / `push back`. Reviewers are sometimes wrong, out of date, or asking for something the code does on purpose. Change no code. Return the investigation entry in that file's format, with a fix plan and blast radius for `fix now`.
+
+Pass the direction sources with the issue: the project file's Goal and Decisions, the plan, the core principles, and the repo rules. An issue that conflicts with them is `push back`, never fixed.
+
+When the caller (for example bbimprove) already hands you investigation entries, don't re-investigate. Apply the `fix now` entries from their plans.
 
 Merge issues that share a root cause into one fix, and say so in the report.
 
@@ -45,9 +49,10 @@ Apply in an order that avoids collisions:
 
 - Issues whose files are disjoint may be applied in parallel by separate subagents.
 - Issues touching the same file, or the same symbol, are applied by the main agent sequentially - never let two agents edit one file at once.
-- Skip issues marked `invalid` unless the user insisted; record why instead.
+- Apply only `fix now` entries that have a completed investigation and a fix plan. Nothing is fixed without one. `list in PR body`, `drop` and `push back` entries are reported, not applied.
+- Work test-first: write the plan's test, see it fail, then make the change. Keep to the plan's scope. If the fix needs more than the plan says, stop and send that issue back through investigation.
 
-Each fix: the smallest change that resolves the root cause, matching surrounding style and the repo's rules. Add or adjust tests when the repo tests that behaviour, and run the relevant checks as you go.
+Each fix: the smallest change that resolves the root cause, matching surrounding style and the repo's rules. Then check the plan's blast radius: callers, readers, other writers, docs and claims. Run the relevant checks as you go.
 
 ## Phase 4: Verify each fix (fresh eyes)
 
@@ -66,8 +71,8 @@ One entry per issue, matching the requested order:
    - **Fix**: files changed and what changed, one or two lines
    - **Verified**: what you checked and which commands passed
 
-Then: issues skipped or rejected with the evidence for rejecting them, anything left partially done, and the overall build/tests/lint status. Offer the obvious next step - reply to the PR threads, resolve them, commit, or open a PR - and do none of it unasked.
+Then the bucket counts (`fix now / listed / dropped / push back`): the listed items as one-line "Known follow-ups" for the PR body, the dropped issues with the evidence for dropping them, and the push-back items with a drafted reply each. After that, anything left partially done, and the overall build/tests/lint status. Offer the obvious next step - reply to the PR threads, resolve them, commit, or open a PR - and do none of it unasked.
 
 **PR mode on our own PR: say why we missed it.** Add a `Miss` line to each valid issue. It names the class (from `../bbreview/references/learned-checklist.md`: outside-diff, repo rule, migration/sibling, docs claim, test gap, failure path/race, fix regression, security, correctness, preference) and the one-line reviewer instruction that would have caught it before the PR. Then:
 - If the instruction is new, append it to the right section of the learned checklist, with the PR number. Don't add it if it duplicates a line that's already there; cite the existing line instead.
-- If the issue contradicts a recorded decision of the user or a repo rule, don't fix it. Mark it `direction-conflict`, cite the decision, and draft a one-line reply for the user to approve.
+- If the issue contradicts a recorded decision of the user or a repo rule, investigation marks it `push back`: cite the decision and draft a one-line reply for the user to approve.

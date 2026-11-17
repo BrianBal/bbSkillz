@@ -67,7 +67,7 @@ Each review agent returns findings as `{file, line (RIGHT side, must be in the d
 - **Should**: realistic failure paths, races, and edge cases on paths people run. Also: missing tests for new behaviour, an existing helper or convention not reused, a stale comment or missing module header, dead code, unbounded work, a migration or sibling-PR conflict, and a wiki seed changed without the live page. Our PR reviewers flag all of these.
 - **Nit**: pure taste (a name you'd merely prefer, reordering, rewording that says the same thing). List these too, but they never block.
 
-Drop nothing silently. Hedged findings stay in, marked `unsure` with what would settle them; the fixer settles them by reading or running the code. The coordinator, not the reviewer, decides what to fix.
+Drop nothing silently. Hedged findings stay in, marked `unsure` with what would settle them. The reviewer doesn't decide what gets fixed: in bbimprove every finding then goes through investigation (`../bbfix/references/investigate.md`), which proves it or disproves it and assigns it fix now, list in PR body, drop or push back.
 
 ### Sub-agents to launch in parallel
 
