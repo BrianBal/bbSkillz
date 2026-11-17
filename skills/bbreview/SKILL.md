@@ -96,6 +96,7 @@ Run the repo's own scripts in the worktree/folder (package.json, Makefile, CI co
 - **Schema:** migration numbers must be unused on `origin/main` (`git fetch` first) and in every open PR (`gh pr list --state open --json number,files`). Regenerated artifacts (views, snapshots, bundles) must be updated.
 - **Siblings:** open PRs, and PRs merged into main since the merge-base, that touch the same paths. Run `git merge-tree` against each one. Flag conflicts and semantic overlaps.
 - **Live state the diff can't show:** a wiki seed or config whose live copy needs the same change, or env vars that must be set in every deploy target.
+Before the findings, put two short tables in your reply so the coverage can be checked: **readers** (new value or status → each reader → what it does with it) and **writer pairs** (writer A, writer B, the interleaving, fenced or not). A pair you didn't check is a gap, not a pass.
 Return each finding at the nearest diff line, or as General when no diff line fits.
 
 **5. Docs (`docs`)** (tag findings with persona `Docs`; skip launching this agent ONLY if the diff is purely internal test/style/refactor with no touched docs and no renamed/changed symbols, APIs, config, flags, or user-visible behavior):
@@ -103,6 +104,8 @@ Check every doc related to the change — the ones the PR touches (`*.md`, `docs
 - **New docs are correct**: anything added matches what the code actually does, and is placed where the repo expects docs.
 - **Stale docs are updated**: no doc still describes behavior the code no longer has, and no doc is missing an update the change requires (renamed things, moved files, changed APIs, changed config/flags, changed setup steps).
 - **Docs describe how things work**: the docs are accurate and complete enough to explain the behavior they cover, not just a restatement of the code.
+
+- **Safety claims are enforced** (pre-PR mode): list every claim the change adds, in docs, code comments, module headers or the PR body, that something cannot, never or only happens ("a revoked key is refused", "runs at most once", "only admins see it"). For each, find the code that enforces it and trace it end to end, including the unchanged code that reads the value (auth checks, dispatch, filters, outcome mappers). An unenforced claim is a Must: either the code is wrong or the claim is.
 
 A doc that mismatches or conflicts with the code is never minor: flag it and name the file and the line, and say what the code does now. Same for a change that clearly needs a doc update the PR skipped. Drop doc wording/verbosity/formatting nits (see the bar).
 
