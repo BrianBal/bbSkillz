@@ -20,6 +20,9 @@ Miss classes (`bbfix` tags each issue with one): outside-diff · repo rule · mi
 10. **Redaction.** Blanking a field must not open a legacy path (an empty password matching a plaintext check). Cover base64 bodies, nested and stringified JSON, and columns the read layer hides. (#212, #220, #236)
 11. **Re-run claims.** Re-run every number and command the PR body or docs claim. A claim that hasn't been run is a finding. (#220, #236)
 12. **Siblings.** Check the open PRs and the recently merged PRs that touch the same paths. Run `git merge-tree` against each one. (#89, #197, #200, #225)
+13. **Crash windows.** For each pair of writes that are not in one transaction, ask what happens if the process dies between them. There must be a repair path, and the repair query's filter must include every kind of row that can be left in that state. (#217, #219)
+14. **Limits that interact.** When a change has two bounds on the same work (an attempt cap and an age window, a retry ladder and an expiry, a page size and a pass budget), work out which one hits first at the default and at the largest allowed setting. A row that hits the wrong one first is stranded. (#209/#217, #215)
+15. **Safety claims.** For every safety claim in the PR body, docs or comments ("only admins can", "is never retried", "can't be replayed", "is idempotent"), trace the code path that is supposed to enforce it, end to end, including code outside the diff. (#215, #217, #236)
 
 ## tracevision/TraceBot
 
