@@ -13,6 +13,10 @@ Input is one of:
   - Line numbers refer to the working-tree file.
   - Phases 1-3 otherwise identical (same checks and personas, same numbered list; draft comments are just the short issue text).
   - **Phase 4 differs: nothing is posted to GitHub.** The user replies with numbers to accept; fix those findings in the folder (smallest change that resolves each), re-run the relevant checks, and report what changed. Do not commit or push unless asked. "approve" just means no changes wanted: say the review is clean and stop.
+- **Pre-PR mode**: folder mode run on our own branch before it becomes a PR (bbimprove always uses it, or the user says "pre-PR"). The goal is that the PR's reviewers find nothing. It differs from folder mode in three ways:
+  - **Every finding is reported.** Use the pre-PR bar below. Nothing is dropped silently.
+  - **Reviewers read past the diff.** They read every touched file in full and the callers of what changed, and the `blast-radius` persona runs.
+  - **Rules are loaded.** Reviewers get the learned checklist and, for a repo TraceBot reviews, the TraceBot-reviewer persona (Phase 1 step 4).
 
 ## Phase 1: Gather (fast, read-only)
 
@@ -25,13 +29,15 @@ Do NOT run build/tests/lint here — those run in parallel during Phase 2.
    awk '/^@@ /{split($2,o,","); split($3,n,","); ol=(2 in o)?o[2]:1; nl=(2 in n)?n[2]:1; ln=substr(n[1],2)-1; print; next} /^\\/{next} ol>0||nl>0{if(/^-/){ol--; print "     " $0; next} if(/^\+/)nl--; else {ol--; nl--} ln++; printf "%4d %s\n", ln, $0; next} /^(diff |index |--- |\+\+\+ )/{print}' <raw-diff> > /tmp/bb-skillz/bb-diff-annotated.patch
    ```
    The hunk body is bounded by the line counts in its `@@ -a,b +c,d @@` header, not by spotting the next `--- `/`+++ ` line, so a removed `-- comment` (`--- comment`) or added `++x` (`+++x`) never ends the hunk early. If you change this command, run `tests/annotate-diff.test.sh` in this skill's directory.
-4. Read root `AGENTS.md` / `CLAUDE.md` (and any in touched directories) once so their contents can be passed inline to the sub-agents.
+4. Read root `AGENTS.md` / `CLAUDE.md` (and any in touched directories) once so their contents can be passed inline to the sub-agents. Also read the repo's `REVIEW_GUIDELINES.md` if it has one. In pre-PR mode, also pass inline:
+   - `references/learned-checklist.md`: the general section, plus the section for this repo;
+   - `references/tracebot-reviewer.md`, when the repo is `tracevision/TraceBot` or TraceBot reviews its PRs.
 
 ## Phase 2: Parallel checks & review passes
 
 Launch **all applicable sub-agents in parallel in a single message** (multiple Task tool calls, `subagent_type: "general"`).
 
-**No subagent tool?** Not every host exposes a subagent/Task tool. If yours does not, do the same work yourself, one persona at a time, in this order: `checks`, `code-security-perf`, `rules-and-tests`, `docs`. Never claim parallel agents ran when they did not.
+**No subagent tool?** Not every host exposes a subagent/Task tool. If yours does not, do the same work yourself, one persona at a time, in this order: `checks`, `code-security-perf`, `rules-and-tests`, `blast-radius` (when it applies), `docs`. Never claim parallel agents ran when they did not.
 
 Give each review agent:
 - PR title/body
@@ -39,6 +45,8 @@ Give each review agent:
 - Worktree/folder path
 - Inline `CLAUDE.md` / `AGENTS.md` content
 - Instruction: *"Read the annotated diff first. Only read full files or grep the repo when you need surrounding context or caller verification — do not re-read untouched files unnecessarily. Verify every claim in the code; do not post anything; apply the Bar for a finding verbatim."*
+- **Pre-PR mode** uses this instruction instead: *"Read the annotated diff, then read every touched file in full and grep for the callers and consumers of everything the diff changes. Bugs our reviewers found were mostly in the unchanged code around a hunk, or in a caller. Work through the learned checklist and the repo persona item by item. Verify every claim in the code, and do not post anything. Apply the pre-PR bar verbatim and return every finding with its tier."*
+- Reviewers judge the code cold. Never give them the coding session, the plan's reasoning, or earlier rounds' ledgers.
 
 Each review agent returns findings as `{file, line (RIGHT side, must be in the diff), comment (draft, see voice), reason (1-2 lines for the user, not posted), persona}`.
 
@@ -53,6 +61,13 @@ Each review agent returns findings as `{file, line (RIGHT side, must be in the d
   - **Duplicated constants/literals** (e.g. a default repeated in two files), even when a repo rule asks for named constants, unless the copies already disagree.
 
   Findings must be **substantive**: something the author would clearly want to fix before merging. Before keeping one, ask "would a senior engineer on this team block or delay the merge for this?" If no, drop it. An empty list is a normal, good result; then recommend approve.
+
+**Pre-PR bar** (replaces the bar above in pre-PR mode; pass it verbatim). The question is no longer "would I block someone else's PR for this?" It is "**would this PR's reviewer (TraceBot or a teammate) comment on it?**" Report every finding, each with a tier:
+- **Must**: bugs, security, failing checks, repo-rule violations, docs or PR-body claims that contradict the code, and broken consumers outside the diff.
+- **Should**: realistic failure paths, races, and edge cases on paths people run. Also: missing tests for new behaviour, an existing helper or convention not reused, a stale comment or missing module header, dead code, unbounded work, a migration or sibling-PR conflict, and a wiki seed changed without the live page. Our PR reviewers flag all of these.
+- **Nit**: pure taste (a name you'd merely prefer, reordering, rewording that says the same thing). List these too, but they never block.
+
+Drop nothing silently. Hedged findings stay in, marked `unsure` with what would settle them; the fixer settles them by reading or running the code. The coordinator, not the reviewer, decides what to fix.
 
 ### Sub-agents to launch in parallel
 
@@ -74,7 +89,14 @@ Run the repo's own scripts in the worktree/folder (package.json, Makefile, CI co
   - No cross-module linking between folders in the `modules` directory
   - No `import { x } from "trux"`; must be `from "trux/<subpackage>"` (e.g. `trux/atoms`) to avoid bloating chunks
 
-**4. Docs (`docs`)** (tag findings with persona `Docs`; skip launching this agent ONLY if the diff is purely internal test/style/refactor with no touched docs and no renamed/changed symbols, APIs, config, flags, or user-visible behavior):
+**4. Blast radius (`blast-radius`)** (pre-PR mode always; in other modes when the diff touches build, deploy, CI, schema, config or a public API. Tag findings with persona `Blast radius`). The other personas review what changed; this one reviews **who depends on what changed**:
+- **Consumers:** for each changed function, type, route, tool, config key, env var, file path, CLI flag, Dockerfile stage or build target, grep the whole repo for its users. That includes `scripts/`, deploy steps, CI workflows, Makefiles, Dockerfiles, tests, docs and seeds. Check that each user still works. Example: adding a final Dockerfile stage changes what a `docker build` without `--target` ships (TraceBot #236, `scripts/deploy-steps/publish.sh`).
+- **Schema:** migration numbers must be unused on `origin/main` (`git fetch` first) and in every open PR (`gh pr list --state open --json number,files`). Regenerated artifacts (views, snapshots, bundles) must be updated.
+- **Siblings:** open PRs, and PRs merged into main since the merge-base, that touch the same paths. Run `git merge-tree` against each one. Flag conflicts and semantic overlaps.
+- **Live state the diff can't show:** a wiki seed or config whose live copy needs the same change, or env vars that must be set in every deploy target.
+Return each finding at the nearest diff line, or as General when no diff line fits.
+
+**5. Docs (`docs`)** (tag findings with persona `Docs`; skip launching this agent ONLY if the diff is purely internal test/style/refactor with no touched docs and no renamed/changed symbols, APIs, config, flags, or user-visible behavior):
 Check every doc related to the change — the ones the PR touches (`*.md`, `docs/**`, README, CHANGELOG, ADRs) and the ones that describe the changed code (grep the repo's docs for changed names/behavior). Verify that:
 - **New docs are correct**: anything added matches what the code actually does, and is placed where the repo expects docs.
 - **Stale docs are updated**: no doc still describes behavior the code no longer has, and no doc is missing an update the change requires (renamed things, moved files, changed APIs, changed config/flags, changed setup steps).
@@ -87,6 +109,8 @@ Mechanical results (build/test/lint/chunk-size failures) are merged into the lis
 ## Phase 3: Present
 
 Dedupe across agents, then re-apply the bar from Phase 2 and silently drop every minor finding (don't list them, don't mention how many were dropped). Keep bad patterns and doc mismatches.
+
+**Pre-PR mode is different: never drop anything.** List Must, then Should, then a **Nits** group, and show the counts per tier. Each item gets its tier in the persona slot (`[Should · Tests]`). Dedupe only true duplicates.
 
 Then show a single numbered list, in this shape:
 
@@ -103,7 +127,7 @@ Then show a single numbered list, in this shape:
 
 Rules for the list:
 
-- `[persona]` is the finding's persona: `Code Quality`, `Security`, `Performance`, `Repo rules`, `Web Trace`, `Tests`, `Docs`, `Build`.
+- `[persona]` is the finding's persona: `Code Quality`, `Security`, `Performance`, `Repo rules`, `Web Trace`, `Tests`, `Blast radius`, `Docs`, `Build`.
 - The link points at the exact changed line. `<anchor>` is the SHA-256 of the repo-relative path exactly as it appears in the PR's file list (no leading `./`):
   ```bash
   printf '%s' "path/to/file.ts" | sha256sum | cut -d' ' -f1   # macOS: shasum -a 256

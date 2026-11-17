@@ -67,3 +67,7 @@ One entry per issue, matching the requested order:
    - **Verified**: what you checked and which commands passed
 
 Then: issues skipped or rejected with the evidence for rejecting them, anything left partially done, and the overall build/tests/lint status. Offer the obvious next step - reply to the PR threads, resolve them, commit, or open a PR - and do none of it unasked.
+
+**PR mode on our own PR: say why we missed it.** Add a `Miss` line to each valid issue. It names the class (from `../bbreview/references/learned-checklist.md`: outside-diff, repo rule, migration/sibling, docs claim, test gap, failure path/race, fix regression, security, correctness, preference) and the one-line reviewer instruction that would have caught it before the PR. Then:
+- If the instruction is new, append it to the right section of the learned checklist, with the PR number. Don't add it if it duplicates a line that's already there; cite the existing line instead.
+- If the issue contradicts a recorded decision of the user or a repo rule, don't fix it. Mark it `direction-conflict`, cite the decision, and draft a one-line reply for the user to approve.

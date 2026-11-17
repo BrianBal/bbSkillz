@@ -7,7 +7,7 @@ opencode so the copies can never drift apart again.
 | Skill | What it does | Input |
 | --- | --- | --- |
 | `bbreview` | Multi-persona review of a PR (posts the review) or a local folder (suggests fixes only) | PR URL or folder |
-| `bbimprove` | Loop of `bbreview` -> `bbfix`: review a folder, root-cause and fix each finding, repeat until clean. Never commits/pushes | folder |
+| `bbimprove` | Loop of `bbreview` (pre-PR mode) -> `bbfix`: review a folder, root-cause and fix each finding, repeat until a full review of the final code is green. Run it from a fresh `reviewer` agent, not the coder. Never commits/pushes | folder |
 | `bbinspect` | Same review bar, scoped to one module/page/feature instead of a diff | module, path, or `owner/repo target` |
 | `bbdoc` | Audits affected docs line-by-line against the code and fixes them, up to 5 passes | optional path/topic |
 | `bbprr` | Finds a PR with your review requested and runs `bbreview` on it | optional repo/author/number filter |
@@ -48,7 +48,7 @@ that point into this repo).
 
 ```
 skills/<name>/SKILL.md      # the Agent Skills standard: name + description frontmatter
-agents/*.md                 # Claude Code sub-agents (researcher, implementer), linked into ~/.claude/agents
+agents/*.md                 # Claude Code sub-agents (researcher, implementer, reviewer), linked into ~/.claude/agents
 commands/claude/*.md        # thin $-argument wrappers
 commands/opencode/*.md
 install.sh
